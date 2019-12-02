@@ -10,8 +10,8 @@ fn run(path: &str) {
     let solution = part_1(&buffer);
     println!("Part 1: {}", solution);
     input.read_to_string(&mut buffer).unwrap();
-    let sol2 = part_2(&buffer);
-    println!("Part 2: {}", sol2[0]*100 + sol2[1]);    
+    let (noun, verb) = part_2(&buffer);
+    println!("Part 2: {}", noun*100 + verb);    
 }
 
 fn main() {
