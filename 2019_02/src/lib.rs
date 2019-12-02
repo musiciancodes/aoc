@@ -46,20 +46,17 @@ pub fn part_1(s: &str) -> i32 {
     return run_opcodes(nums)[0];
 }
 
-pub fn test_inputs(arr: &Vec<i32>, noun: i32, verb: i32) -> i32 {
-    let mut nums = arr.to_vec();
-    nums[1] = noun;
-    nums[2] = verb;
-    return run_opcodes(nums)[0];
-}
 
 pub fn part_2(s: &str) -> (i32, i32) {
-    let nums: Vec<i32> = s.split(",").map(|n| n.parse().unwrap()).collect();
-    for x in 0..100 {
-        for y in 0..100 {
-            let output = test_inputs(&nums, x, y);
-            if output == 19690720 {
-                return (x, y);
+    let src: Vec<i32> = s.split(",").map(|n| n.parse().unwrap()).collect();
+    let mut dst;
+    for noun in 0..100 {
+        for verb in 0..100 {
+            dst = src.clone();
+            dst[1] = noun;
+            dst[2] = verb;
+            if run_opcodes(dst)[0] == 19690720 {
+                return (noun, verb);
             }
         }
     }
