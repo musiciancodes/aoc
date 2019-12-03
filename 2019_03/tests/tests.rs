@@ -10,12 +10,12 @@ mod part1_tests {
     }
 }
 
-// #[cfg(test)]
-// mod part2_tests {
-//     use super::*;    
-//     #[test]
-//     fn first() {
-//         let input = String::from("14");
-//         assert_eq!(1+1, 2);
-//     }
-// }
+#[cfg(test)]
+mod part2_tests {
+    use super::*;    
+    #[test]
+    fn first() {
+        let input = String::from("14");
+        assert_eq!(1+1, 2);
+    }
+}
