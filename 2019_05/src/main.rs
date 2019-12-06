@@ -8,6 +8,6 @@ fn main() {
     let mut input = File::open(path).unwrap();
     let mut buffer = String::new();
     input.read_to_string(&mut buffer).unwrap();
-    print!("part 1: {}", part_1(&buffer));
+    print!("solution: {}", part_1(&buffer, 5));
 
 }
