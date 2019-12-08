@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{Read};
-use aoc::part_1;
+use aoc::part_2;
 
 
 fn main() {
@@ -8,6 +8,6 @@ fn main() {
     let mut input = File::open(path).unwrap();
     let mut buffer = String::new();
     input.read_to_string(&mut buffer).unwrap();
-    print!("solution: {}", part_1(&buffer));
+    print!("solution: {}", part_2(&buffer));
 
 }

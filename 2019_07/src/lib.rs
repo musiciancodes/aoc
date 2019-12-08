@@ -1,15 +1,14 @@
 use std::convert::TryInto;
 extern crate itertools;
 use itertools::Itertools;
-// extern crate combinations;
-// use combinations::Combinations;
 
+#[derive(Clone)]
 pub struct Computer {
     loc: usize,
     instructions: Vec<i32>,
-    phase: i32,
-    input_signal: i32,
-    output: i32,
+    inputs: Vec<i32>,
+    outputs: Vec<i32>,
+    input_idx: usize,
 }
 
 impl Computer {
@@ -69,16 +68,16 @@ impl Computer {
         self.update_loc(4)
     }
     fn op_3(&mut self) {
-        let x = self.phase;
+        let x = self.inputs[self.input_idx];
         let i: usize = self.get_ix_u(self.loc + 1);
+        self.input_idx +=1;
         self.update_ins(i, x);
-        self.phase = self.input_signal;
         self.update_loc(2)
     }
     fn op_4(&mut self, p_modes: Vec<bool>) {
         let a: i32 = self.get_val(self.loc + 1, p_modes[2]);
-        self.output = a;
-        print!("op4: {}\n", a);        
+        self.outputs.push(a);
+        print!("op4: {}\n", a);
         self.update_loc(2)
     }
     fn op_5(&mut self, p_modes: Vec<bool>) {
@@ -125,31 +124,64 @@ impl Computer {
     }
 }
 
-pub fn part_1(s: &str) -> i32 {
-    let mut max_signal:i32 = 0;
-    (0..5).permutations(5).for_each(|input|{
-        let signal = test_sequence(s, input);
-        if signal > max_signal {max_signal = signal};
-    });
-    return max_signal;
+fn compute_part2(s: &str, permutation: Vec<i32>) -> i32 {
+    let nums: Vec<i32> = s.split(",").map(|n| n.parse().unwrap()).collect();    
+
+    let mut amps = vec![
+        Computer {
+            loc: 0,
+            instructions: nums.clone(),
+            inputs: Vec::new(),
+            outputs: Vec::new(),
+            input_idx: 0
+        };
+        5
+    ];
+
+    fn pass_input(amp: &mut Computer, value: i32) {
+        amp.inputs.insert(0, value);
+    }
+
+    for (i, &phase) in permutation.iter().enumerate() {
+        pass_input(&mut amps[i], phase);
+    }
+    // start the first input
+    pass_input(&mut amps[0], 0);
+
+    loop {
+        let mut had_progress = false;
+        for idx in 0..5 {
+            let amp = &mut amps[idx];
+            amp.run();
+            if amp.outputs.is_empty() {
+                continue;
+            }
+            
+            had_progress = true;
+            let next_idx = (idx + 1) % 5;
+            for out_idx in 0..amp.outputs.len() {
+                let value = amps[idx].outputs[out_idx];
+                pass_input(&mut amps[next_idx], value);
+            }
+            amps[idx].outputs.clear();
+        }
+
+        if !had_progress {
+            if amps[0].inputs.len() != 1 || amps.iter().skip(1).any(|amp| amp.inputs.len() != 0) {
+                break("incorrect passing of arguments between amplifiers");
+            }
+        }
+    };
+    return amps[0].inputs[0];
 }
 
-pub fn test_sequence(s:&str, phases:Vec<i32>) -> i32 {
-    let mut input_signal = 0;
-    phases.iter().for_each(|phase| {
-        input_signal = test_signal(s, *phase, input_signal);
+pub fn part_2(s:&str) -> i32{
+
+    let mut max_signal:i32 = 0;
+    (5..10).permutations(5).for_each(|input|{
+        let signal = compute_part2(s, input);
+        print!("signal, {}\n", signal);
+        if signal > max_signal {max_signal = signal};
     });
-    return input_signal;
-}
-pub fn test_signal(s:&str, phase:i32, input_signal: i32) -> i32 {
-    let nums: Vec<i32> = s.split(",").map(|n| n.parse().unwrap()).collect();
-    let mut comp = Computer {
-        loc: 0,
-        instructions: nums,
-        phase: phase,
-        input_signal: input_signal,
-        output:0
-    };
-    comp.run();
-    return comp.output;
+    return max_signal;    
 }
